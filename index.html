@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Corlemps Company – Demo</title>
+<title>Corlemps Company</title>
 <meta name="theme-color" content="#7A4DFF">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Corlemps">
@@ -196,9 +198,27 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--violet);outline
   .receipt{box-shadow:none;border:0;max-width:none;max-height:none}
   .rbtns{display:none}
 }
+
+/* intro video */
+#intro{position:fixed;inset:0;z-index:99;background:linear-gradient(135deg,#2B1B5A,#14101F);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px;animation:introOut .6s ease 4.4s forwards}
+#intro .lg{width:96px;height:96px;border-radius:26px;background:var(--violet);display:grid;place-items:center;font:800 52px/1 system-ui,sans-serif;animation:pop .9s cubic-bezier(.2,1.4,.4,1) both}
+#intro .w{font-size:16px;letter-spacing:.3em;text-transform:uppercase;opacity:0;animation:rise .8s ease .7s forwards}
+#intro h2{font-size:clamp(28px,7vw,52px);margin:0;opacity:0;animation:rise .8s ease 1.3s forwards}
+#intro .bar{width:min(240px,60vw);height:4px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden}
+#intro .bar i{display:block;height:100%;width:0;background:#fff;animation:fill 4s linear .4s forwards}
+#intro button{background:none;border:2px solid rgba(255,255,255,.5);color:#fff;border-radius:999px;padding:8px 18px;font:inherit;cursor:pointer}
+@keyframes pop{from{transform:scale(0) rotate(-20deg)}to{transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fill{to{width:100%}}
+@keyframes introOut{to{opacity:0;visibility:hidden}}
+@media (prefers-reduced-motion:reduce){#intro .w,#intro h2{opacity:1}#intro .bar i{width:100%}}
+/* telefòn · tablèt · laptòp · òdinatè */
+@media (min-width:600px) and (max-width:880px){.app{padding:10px 24px 100px}.lcard{max-width:460px}}
+@media (min-width:1400px){.top,.app{max-width:1500px}.app{grid-template-columns:1fr 440px}}
 </style>
 </head>
 <body data-sec="bou">
+<div id="intro" role="presentation"><div class="lg" aria-hidden="true">C</div><div class="w">Welcome to</div><h2>Corlemps Company</h2><div class="bar"><i></i></div><button type="button" id="introSkip">Pase</button></div>
 
 <section id="setup" class="center" hidden>
   <div class="card lcard">
@@ -211,6 +231,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--violet);outline
 <section id="login" class="center" hidden>
   <div class="card lcard">
     <div class="brand"><div class="logo" aria-hidden="true">C</div></div>
+    <p class="welcome">Welcome to Corlemps Company</p>
     <h1>Corlemps Company</h1>
     <p>Konekte pou louvri kès la.</p>
     <label class="fld">Imèl<input id="lem" type="email" autocomplete="username" inputmode="email"></label>
@@ -303,250 +324,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--violet);outline
 <div class="overlay" id="hov" role="dialog" aria-modal="true" aria-label="Detay"><div class="hist" id="hbox"></div></div>
 <div class="toast" id="toast" role="status"></div>
 
-<script>window.CORLEMPS={url:"",key:"",support:""};</script>
-<script>
-/* Corlemps — mòd DEMO: yon "baz done" ki fèt nan navigatè a (localStorage) pou teste san Supabase. */
-window.CORLEMPS_DEMO=function(){
-  var KEY='corlemps.demo.v2',mem=null,listeners=[];
-  var USERS={
-    'demo@corlemps.com':{id:'u-owner',name:'Pwopriyetè Demo',role:'owner',pw:'demo1234'},
-    'kasye@corlemps.com':{id:'u-cash',name:'Kasye Demo',role:'cashier',pw:'demo1234'}
-  };
-  function ymd(d){var p=function(n){return (n<10?'0':'')+n};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())}
-  function todayS(){return ymd(new Date())}
-  function plus(n){var d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+n);return ymd(d)}
-  function days(a,b){return Math.round((Date.parse(a+'T12:00:00')-Date.parse(b+'T12:00:00'))/864e5)}
-  function seed(){
-    var P=[
-     ['bou','Diri 5 lb','Manje','🍚',450,400,10,24,0,null,0],['bou','Lwil kwizin','Manje','🫗',320,280,6,12,0,null,0],
-     ['bou','Pen','Manje','🍞',50,42,24,30,0,null,0],['bou','Ze (douzèn)','Manje','🥚',360,330,5,4,0,null,0],
-     ['bou','Dlo 1 gal','Bwason','💧',75,65,24,60,0,null,0],['bou','Kola','Bwason','🥤',60,50,24,36,0,null,0],
-     ['bou','Savon','Kay','🧼',55,45,12,25,0,null,0],['bou','Kat rechaj','Akseswa','📱',100,90,20,100,0,null,0],
-     ['fam','Paracetamòl 500mg','Doulè','💊',80,65,20,120,0,plus(500),0],['fam','Ibipwofèn 400mg','Doulè','💊',150,125,20,60,0,plus(300),0],
-     ['fam','Amoxicillin 500mg','Antibyotik','💊',350,300,10,40,1,plus(250),0],['fam','Azitwomisin 500mg','Antibyotik','💊',480,420,10,15,1,plus(45),0],
-     ['fam','Metfòmin 850mg','Maladi kwonik','💊',260,225,10,3,1,plus(200),0],['fam','Vitamin C 1000mg','Vitamin','🍊',220,185,10,33,0,plus(600),0],
-     ['fam','Sèl rehidratasyon','Premye swen','🧂',40,32,30,80,0,plus(700),0],['fam','Siwo tous','Alèji','🧴',300,null,null,10,0,plus(-12),0],
-     ['hop','Konsiltasyon jeneral','Konsiltasyon','🩺',800,null,null,null,0,null,0],['hop','Konsiltasyon pedyatri','Konsiltasyon','🧒',1000,null,null,null,0,null,0],
-     ['hop','Glikemi','Laboratwa','🩸',350,null,null,null,0,null,0],['hop','CBC (nimerasyon san)','Laboratwa','🧪',600,null,null,null,0,null,0],
-     ['hop','Radyo pwatrin','Imaji','🩻',1800,null,null,null,0,null,0],['hop','Echografi','Imaji','📡',2500,null,null,null,0,null,0],
-     ['hop','Vaksen','Swen','💉',700,null,null,null,0,null,0],['hop','Chanm / jou','Admisyon','🛏️',3500,null,null,6,0,null,1],
-     ['mar','Banan (douzèn)','Fwi ak legim','🍌',200,170,10,40,0,null,0],['mar','Tomat (liv)','Fwi ak legim','🍅',60,50,20,50,0,null,0],
-     ['mar','Zoranj (sak)','Fwi ak legim','🍊',150,125,10,25,0,null,0],['mar','Poul (liv)','Vyann','🍗',220,195,10,30,0,null,0],
-     ['mar','Vyann bèf (liv)','Vyann','🥩',450,410,10,18,0,null,0],['mar','Lèt 1L','Pwodwi lèt','🥛',180,160,12,4,0,plus(20),0],
-     ['mar','Fromaj','Pwodwi lèt','🧀',350,null,null,14,0,plus(40),0],['mar','Dlo pake 12','Bwason','💧',480,440,5,36,0,null,0],
-     ['mar','Savon lesiv','Netwayaj','🧴',210,185,12,28,0,null,0],['mar','Papye twalèt (4)','Netwayaj','🧻',240,215,12,45,0,null,0],
-     ['hot','Chanm Estanda / nwit','Chanm','🛏️',3500,null,null,null,0,null,0],['hot','Chanm Deluxe / nwit','Chanm','🏨',5500,null,null,null,0,null,0],
-     ['hot','Swit / nwit','Chanm','👑',9000,null,null,null,0,null,0],['hot','Dejene','Restoran','🍳',450,null,null,null,0,null,0],
-     ['hot','Dine','Restoran','🍽️',700,null,null,null,0,null,0],['hot','Bwason bar','Restoran','🍹',250,null,null,null,0,null,0],
-     ['hot','Lesiv (pyès)','Sèvis','🧺',150,null,null,null,0,null,0],['hot','Transpò ayewopò','Sèvis','🚐',2500,null,null,null,0,null,0],
-     ['lek','Enskripsyon','Frè','🎓',5000,null,null,null,0,null,0],['lek','Frè mansyèl','Frè','📅',2500,null,null,null,0,null,0],
-     ['lek','Egzamen','Frè','📝',500,null,null,null,0,null,0],['lek','Transpò / mwa','Frè','🚌',2000,null,null,null,0,null,0],
-     ['lek','Uniform','Pwodwi','👔',1800,null,null,40,0,null,0],['lek','Liv klas','Pwodwi','📚',1200,null,null,60,0,null,0],
-     ['lek','Kaye','Pwodwi','📓',60,50,50,200,0,null,0],['lek','Kantin / jou','Kantin','🍱',150,null,null,null,0,null,0]
-    ];
-    var DB={seq:123,nextPid:P.length+1,session:null,sales:[],
-      sub:{name:'Boutik Demo',plan:'monthly',paid_until:plus(30),grace_days:3},
-      products:P.map(function(r,i){return {id:i+1,sec:r[0],name:r[1],category:r[2],emoji:r[3],price:r[4],wholesale_price:r[5],wholesale_min:r[6],stock:r[7],rx:!!r[8],exp_date:r[9],is_bed:!!r[10],active:true}})};
-    // istorik egzanp (14 jou) pou asistan IA a ak rapò yo ka reponn
-    var s0=7,pick=function(){s0=(s0*1664525+1013904223)>>>0;return s0/4294967296},M=['Lajan kach','MonCash','NatCash','Kat'];
-    for(var dd=13;dd>=0;dd--){
-      var n=2+Math.floor(pick()*4);
-      for(var k=0;k<n;k++){
-        var cnt=1+Math.floor(pick()*3),lines=[],sub=0,secs=[];
-        for(var j=0;j<cnt;j++){
-          var p=DB.products[Math.floor(pick()*DB.products.length)];if(p.sec==='hop'||p.rx||(p.exp_date&&p.exp_date<todayS()))continue;
-          var q=1+Math.floor(pick()*3);sub+=p.price*q;if(secs.indexOf(p.sec)<0)secs.push(p.sec);
-          lines.push({id:p.id,name:p.name,qty:q,unit:p.price,retail:p.price,rx:p.rx,sec:p.sec});
-        }
-        if(!lines.length)continue;
-        var when=new Date();when.setDate(when.getDate()-dd);when.setHours(8+Math.floor(pick()*10),Math.floor(pick()*60),0,0);if(when.getTime()>Date.now())when=new Date(Date.now()-36e5);
-        DB.seq++;var own=pick()>.5;
-        DB.sales.push({no:'R-'+('000000'+DB.seq).slice(-6),created_at:when.toISOString(),user_id:own?'u-owner':'u-cash',cashier:own?'Pwopriyetè Demo':'Kasye Demo',sectors:secs,subtotal:sub,insurance:0,discount:0,total:sub,method:M[Math.floor(pick()*4)],wholesale:false,customer:null,patient:null,dossier:null,doctor:null,received:null,items:lines});
-      }
-    }
-    DB.sales.sort(function(a,b){return a.created_at<b.created_at?1:-1});
-    return DB;
-  }
-  var db;
-  function load(){try{var s=localStorage.getItem(KEY);if(s)return JSON.parse(s)}catch(e){}return mem?JSON.parse(mem):null}
-  function save(){var s=JSON.stringify(db);try{localStorage.setItem(KEY,s)}catch(e){}mem=s}
-  db=load()||seed();save();
-
-  function byId(id){for(var k in USERS)if(USERS[k].id===id)return {email:k,u:USERS[k]};return null}
-  function cur(){return db.session?byId(db.session.id):null}
-  function subActive(){var d=days(db.sub.paid_until,todayS());return d+db.sub.grace_days>=0}
-  function err(m){return {data:null,error:{message:m}}}
-  function clone(x){return JSON.parse(JSON.stringify(x))}
-  function fire(ev){listeners.forEach(function(f){f(ev)})}
-
-  /* ----- query builder (sèlman sa aplikasyon an itilize) ----- */
-  function Q(t){this.t=t;this.op='select';this.f=[];this.o=[];this.lim=null;this.row=null;this.one=false}
-  Q.prototype.select=function(){return this};
-  Q.prototype.insert=function(r){this.op='insert';this.row=r;return this};
-  Q.prototype.update=function(r){this.op='update';this.row=r;return this};
-  Q.prototype.eq=function(c,v){this.f.push(['eq',c,v]);return this};
-  Q.prototype.gte=function(c,v){this.f.push(['gte',c,v]);return this};
-  Q.prototype.order=function(c,o){this.o.push([c,!(o&&o.ascending===false)]);return this};
-  Q.prototype.limit=function(n){this.lim=n;return this};
-  Q.prototype.maybeSingle=function(){this.one=true;return this};
-  Q.prototype.then=function(res,rej){return Promise.resolve(this.exec()).then(res,rej)};
-  Q.prototype.exec=function(){
-    var me=cur(),self=this,t=this.t;
-    if(!me)return err('Pa konekte.');
-    var rows;
-    if(t==='profiles'){rows=Object.keys(USERS).map(function(k){var u=USERS[k];return {id:u.id,name:u.name,role:u.role}}).filter(function(r){return r.id===me.u.id||me.u.role==='owner'})}
-    else if(t==='products'){rows=db.products}
-    else if(t==='sales'){rows=db.sales.filter(function(s){return me.u.role==='owner'||s.user_id===me.u.id})}
-    else return err('Tab pa konnen.');
-    rows=rows.filter(function(r){return self.f.every(function(f){return f[0]==='eq'?r[f[1]]===f[2]:String(r[f[1]])>=String(f[2])})});
-    if(this.op==='insert'||this.op==='update'){
-      if(t!=='products'||me.u.role!=='owner'||!subActive())return err('new row violates row-level security policy');
-      if(this.op==='insert'){var n=clone(this.row);n.id=db.nextPid++;n.active=true;db.products.push(n);save();return {data:null,error:null}}
-      rows.forEach(function(r){for(var k in self.row)r[k]=self.row[k]});save();return {data:null,error:null};
-    }
-    this.o.slice().reverse().forEach(function(o){rows=rows.slice().sort(function(a,b){var x=a[o[0]],y=b[o[0]];var c=(typeof x==='number'&&typeof y==='number')?x-y:String(x).localeCompare(String(y));return o[1]?c:-c})});
-    if(this.lim!=null)rows=rows.slice(0,this.lim);
-    rows=clone(rows);
-    return {data:this.one?(rows[0]||null):rows,error:null};
-  };
-
-  /* ----- fonksyon sèvè (menm lojik ak supabase.sql) ----- */
-  function makeSale(a){
-    var me=cur();if(!me)return err('Ou pa gen aksè.');
-    if(!subActive())return err('Abònman an ekspire. Renouvle pou kontinye vann.');
-    var items=a.p_items||[];if(!items.length)return err('Panye a vid.');
-    if(['Lajan kach','MonCash','NatCash','Kat'].indexOf(a.p_method)<0)return err('Metòd peman pa valab.');
-    var cl=function(v){return Math.min(100,Math.max(0,+v||0))},disc=cl(a.p_discount),insp=cl(a.p_insurance);
-    var sub=0,hosp=0,needRx=false,needPat=false,lines=[],secs=[],ch=[];
-    for(var i=0;i<items.length;i++){
-      var q=Math.floor(items[i].qty);if(!(q>0))return err('Kantite pa valab.');
-      var p=db.products.filter(function(x){return x.id===items[i].id&&x.active})[0];
-      if(!p)return err('Yon pwodwi pa jwenn ankò. Rafrechi paj la.');
-      if(p.exp_date&&p.exp_date<todayS())return err(p.name+' ekspire. Pa ka vann li.');
-      if(p.stock!=null&&p.stock<q)return err('Stok pa ase pou '+p.name+' (rete '+p.stock+').');
-      var u=(a.p_wholesale&&p.wholesale_price!=null&&q>=p.wholesale_min)?p.wholesale_price:p.price;
-      sub+=u*q;if(p.sec==='hop')hosp+=u*q;if(p.sec==='hop'||p.sec==='hot'||p.sec==='lek')needPat=true;if(p.rx)needRx=true;
-      if(secs.indexOf(p.sec)<0)secs.push(p.sec);
-      ch.push([p,q]);lines.push({id:p.id,name:p.name,qty:q,unit:u,retail:p.price,rx:p.rx,sec:p.sec});
-    }
-    var T=function(s){return (s||'').trim()};
-    if(needRx&&!T(a.p_doctor))return err('Non doktè oswa # ordonnans obligatwa pou medikaman Rx.');
-    if(needPat&&!T(a.p_patient))return err('Non pasyan / kliyan / elèv obligatwa pou sèvis sa a.');
-    if(a.p_wholesale&&!T(a.p_customer))return err('Non kliyan obligatwa pou vant an gwo.');
-    var ins=Math.round(hosp*insp/100),d=Math.round((sub-ins)*disc/100),tot=sub-ins-d;
-    if(a.p_method==='Lajan kach'&&(a.p_received==null||a.p_received<tot))return err('Kach resevwa a pa ase.');
-    ch.forEach(function(c){if(c[0].stock!=null)c[0].stock-=c[1]});
-    db.seq++;
-    var row={no:'R-'+('000000'+db.seq).slice(-6),created_at:new Date().toISOString(),user_id:me.u.id,cashier:me.u.name,sectors:secs,
-      subtotal:sub,insurance:ins,discount:d,total:tot,method:a.p_method,wholesale:!!a.p_wholesale,customer:T(a.p_customer)||null,
-      patient:T(a.p_patient)||null,dossier:T(a.p_dossier)||null,doctor:T(a.p_doctor)||null,received:a.p_received==null?null:a.p_received,items:lines};
-    db.sales.unshift(row);save();
-    return {data:clone(row),error:null};
-  }
-  function subStatus(){
-    var dl=days(db.sub.paid_until,todayS());
-    return {data:{name:db.sub.name||'Boutik Demo',suspended:false,plan:db.sub.plan,paid_until:db.sub.paid_until,grace_days:db.sub.grace_days,days_left:dl,active:dl+db.sub.grace_days>=0},error:null};
-  }
-
-  var client={
-    auth:{
-      getSession:function(){return Promise.resolve({data:{session:db.session?{user:{id:db.session.id}}:null}})},
-      onAuthStateChange:function(cb){listeners.push(cb);return {data:{subscription:{}}}},
-      signInWithPassword:function(c){
-        var u=USERS[String(c.email||'').toLowerCase()];
-        if(!u||u.pw!==c.password)return Promise.resolve({data:null,error:{message:'Invalid login credentials'}});
-        db.session={id:u.id};save();return Promise.resolve({data:{},error:null});
-      },
-      getUser:function(){var m=cur();return Promise.resolve({data:{user:m?{id:m.u.id,email:m.email}:null}})},
-      signOut:function(){db.session=null;save();fire('SIGNED_OUT');return Promise.resolve({})}
-    },
-    from:function(t){return new Q(t)},
-    rpc:function(n,a){return Promise.resolve(n==='make_sale'?makeSale(a||{}):n==='sub_status'?subStatus():n==='rename_my_tenant'?rename(a||{}):err('Fonksyon pa konnen.'))},
-    functions:{invoke:function(name,opts){return askAI(name,opts||{})}}
-  };
-
-
-  function rename(a){
-    var m=cur();if(!m||m.u.role!=='owner')return err('Sèlman pwopriyetè a ka chanje non biznis la.');
-    var n=String(a.p_name||'').trim();if(!n||n.length>60)return err('Non biznis la pa valab (1 a 60 karaktè).');
-    db.sub.name=n;save();return {data:null,error:null};
-  }
-  /* ----- Asistan IA (demo): menm done agreje ak Edge Function nan, san non kliyan/pasyan ----- */
-  var AI_SYSTEM='You are "Asistan Corlemps", a business assistant inside a point-of-sale app used by small businesses in Haiti. Always answer in Haitian Creole (Kreyòl ayisyen), short and clear for a phone screen (at most about 8 short lines). Write amounts with "G" after the number (example: 12 500 G). Use ONLY the business data provided below. Never invent numbers; if the data cannot answer, say so and point to 📊 Rapò, 🧾 Istorik or ⚙️ Paramèt. You may give simple practical business suggestions. Do not give medical advice. No markdown, tables or bold; plain short lines, "-" for lists. Data covers the last 30 days. Sector codes: bou=Boutik, mar=Market, fam=Famasi, hop=Lopital, hot=Otèl, lek=Lekòl.';
-  function aiCtx(){
-    var t0=todayS(),d7=plus(-6),byDay={},T={today:{total:0,count:0},last7days:{total:0,count:0},last30days:{total:0,count:0}},sec={},meth={},cash={},top={};
-    db.sales.forEach(function(s){
-      var d=ymd(new Date(s.created_at)),tt=+s.total;byDay[d]=byDay[d]||{total:0,count:0};byDay[d].total+=tt;byDay[d].count++;
-      if(d===t0){T.today.total+=tt;T.today.count++}if(d>=d7){T.last7days.total+=tt;T.last7days.count++}T.last30days.total+=tt;T.last30days.count++;
-      meth[s.method]=(meth[s.method]||0)+tt;if(s.cashier)cash[s.cashier]=(cash[s.cashier]||0)+tt;
-      (s.items||[]).forEach(function(it){var r=it.unit*it.qty;sec[it.sec]=(sec[it.sec]||0)+r;top[it.name]=top[it.name]||{qty:0,revenue:0};top[it.name].qty+=it.qty;top[it.name].revenue+=r});
-    });
-    var daily=[];for(var i=0;i<14;i++){var k=plus(-i);daily.push({date:k,total:(byDay[k]||{}).total||0,count:(byDay[k]||{}).count||0})}
-    var in60=plus(60),P=db.products.filter(function(p){return p.active});
-    return {business:db.sub.name||'Biznis la',today:t0,currency:'G (goud ayisyen)',totals:T,daily_last_14_days:daily,
-      revenue_by_sector_30d:sec,revenue_by_payment_method_30d:meth,revenue_by_cashier_30d:cash,
-      top_products_30d:Object.keys(top).map(function(n){return {name:n,qty:top[n].qty,revenue:top[n].revenue}}).sort(function(a,b){return b.qty-a.qty}).slice(0,10),
-      low_stock:P.filter(function(p){return p.stock!=null&&!p.is_bed&&p.stock<=5}).map(function(p){return {name:p.name,stock:p.stock}}),
-      expiring_within_60_days:P.filter(function(p){return p.exp_date&&p.exp_date>=t0&&p.exp_date<=in60}).map(function(p){return {name:p.name,exp_date:p.exp_date,stock:p.stock}}),
-      expired_but_in_stock:P.filter(function(p){return p.exp_date&&p.exp_date<t0&&(p.stock||0)>0}).map(function(p){return {name:p.name,exp_date:p.exp_date,stock:p.stock}}),catalog_size:P.length};
-  }
-  function G(n){return Math.round(+n||0).toLocaleString('fr-FR')+' G'}
-  function localAnswer(q,c){
-    q=q.toLowerCase();
-    var l=function(a){return a.length?a.map(function(x){return '- '+x}).join('\n'):'- Anyen.'};
-    if(/ekspir/.test(q))return 'Pwodwi ki pral ekspire nan 60 jou:\n'+l(c.expiring_within_60_days.map(function(p){return p.name+' ('+p.exp_date+')'}))+(c.expired_but_in_stock.length?'\nDeja ekspire men toujou nan stok:\n'+l(c.expired_but_in_stock.map(function(p){return p.name})):'');
-    if(/stok|fini|rete/.test(q))return 'Pwodwi ki prèske fini (5 oswa mwens):\n'+l(c.low_stock.map(function(p){return p.name+': '+p.stock}));
-    if(/plis|vann|top|best/.test(q)&&!/jodi/.test(q))return 'Pwodwi ki vann plis (30 jou):\n'+l(c.top_products_30d.slice(0,5).map(function(p){return p.name+': '+p.qty+' (rapòte '+G(p.revenue)+')'}));
-    if(/jodi/.test(q))return 'Jodi a ou fè '+G(c.totals.today.total)+' nan '+c.totals.today.count+' vant.';
-    if(/semèn|7/.test(q))return '7 dènye jou yo: '+G(c.totals.last7days.total)+' nan '+c.totals.last7days.count+' vant.';
-    if(/mwa|30/.test(q))return '30 dènye jou yo: '+G(c.totals.last30days.total)+' nan '+c.totals.last30days.count+' vant.';
-    return 'Rezime '+c.business+':\n- Jodi a: '+G(c.totals.today.total)+' ('+c.totals.today.count+' vant)\n- 7 jou: '+G(c.totals.last7days.total)+'\n- 30 jou: '+G(c.totals.last30days.total)+'\n- Pwodwi ki vann plis: '+(c.top_products_30d[0]?c.top_products_30d[0].name:'—')+'\n- Stok ki ba: '+c.low_stock.length+' pwodwi';
-  }
-  function askClaude(prompt){
-    if(!(window.claude&&window.claude.use))return Promise.reject(new Error('no'));
-    return window.claude.use('sample').then(function(s){if(!s)throw new Error('no');return s(prompt,{modelTier:'quick',cache:false})}).then(function(r){return r.text});
-  }
-  function askAI(name,opts){
-    if(name!=='ask-ai')return Promise.resolve({data:null,error:{message:'Fonksyon pa konnen'}});
-    var m=cur();
-    if(!m||m.u.role!=='owner'||!subActive())return Promise.resolve({data:{error:'Asistan an disponib sèlman pou pwopriyetè a (abònman aktif).'},error:null});
-    var b=opts.body||{},q=String(b.question||'').trim().slice(0,500);
-    if(!q)return Promise.resolve({data:{error:'Kesyon an vid.'},error:null});
-    var c=aiCtx(),hist=(b.history||[]).slice(-6).map(function(x){return (x.role==='user'?'Moun nan: ':'Asistan: ')+x.content}).join('\n');
-    var prompt=AI_SYSTEM+'\n\nBUSINESS DATA (JSON):\n'+JSON.stringify(c)+(hist?'\n\nCONVERSATION SO FAR:\n'+hist:'')+'\n\nQUESTION FROM THE OWNER: '+q;
-    return askClaude(prompt).then(function(t){return {data:{answer:String(t).trim()},error:null}})
-      .catch(function(){return {data:{answer:localAnswer(q,c)},error:null}});
-  }
-
-  /* ----- panno demo (sèlman nan mòd demo) ----- */
-  function addMonth(s){var d=new Date(Math.max(Date.parse(s+'T12:00:00'),Date.parse(todayS()+'T12:00:00')));d.setMonth(d.getMonth()+1);return ymd(d)}
-  function setSub(v){db.sub.paid_until=v;save();if(db.session&&typeof enter==='function')enter()}
-  if(typeof document!=='undefined'&&document.body){
-    var st=document.createElement('style');
-    st.textContent='#demoPanel{position:fixed;left:12px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:30;max-width:290px;background:var(--paper);color:var(--ink);border:3px solid var(--line);border-radius:14px;box-shadow:4px 4px 0 var(--sh);font:500 13px var(--body)}'+
-      '#demoPanel summary{cursor:pointer;padding:8px 12px;font:800 13px var(--display)}#demoPanel .in{padding:0 12px 12px;display:grid;gap:6px}'+
-      '#demoPanel button{border:2px solid var(--line);background:var(--field);color:var(--ink);border-radius:10px;padding:7px 8px;font:700 12px var(--body);text-align:left;cursor:pointer}'+
-      '#demoPanel p{margin:0;color:var(--muted)}#demoPanel b{color:var(--ink)}';
-    document.head.appendChild(st);
-    var dp=document.createElement('details');dp.id='demoPanel';
-    dp.innerHTML='<summary>🧪 Demo</summary><div class="in"><p>Pwopriyetè: <b>demo@corlemps.com</b><br>Kasye: <b>kasye@corlemps.com</b><br>Modpas: <b>demo1234</b></p>'+
-      '<p><b>Simile abònman an:</b></p>'+
-      '<button data-d="30">✅ Aktif (30 jou rete)</button><button data-d="3">🟡 Prèt pou fini (3 jou)</button>'+
-      '<button data-d="-1">🟠 Ekspire, nan tolerans</button><button data-d="-10">🔴 Koupe (ekspire)</button>'+
-      '<button data-d="renew">💸 Renouvle +1 mwa</button><button data-d="reset">↺ Rekòmanse demo a</button></div>';
-    document.body.appendChild(dp);
-    dp.addEventListener('click',function(e){
-      var b=e.target.closest('button');if(!b)return;var v=b.dataset.d;
-      if(v==='reset'){try{localStorage.removeItem(KEY)}catch(x){}location.reload();return}
-      if(v==='renew')setSub(addMonth(db.sub.paid_until));else setSub(plus(+v));
-    });
-    var le=document.getElementById('lem'),lp=document.getElementById('lpw');
-    if(le&&!le.value){le.value='demo@corlemps.com'}if(lp&&!lp.value){lp.value='demo1234'}
-  }
-  return client;
-};
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>window.CORLEMPS={url:"https://juvhvyciklatbnerjxlq.supabase.co",key:"sb_publishable_8OxBH-_Fi2uXZd33LOo_EA_EZKLZ3xb",support:""};</script>
 <script>
 /* Corlemps Company — Kès Vant v1 (Supabase) */
 var SECS=[{k:'bou',n:'Boutik',i:'🛒'},{k:'mar',n:'Market',i:'🧺'},{k:'fam',n:'Famasi',i:'💊'},{k:'hop',n:'Lopital',i:'🏥'},{k:'hot',n:'Otèl',i:'🏨'},{k:'lek',n:'Lekòl',i:'🎓'}];
@@ -604,12 +383,16 @@ function norm(r){
 function view(v){['setup','login','locked','appRoot'].forEach(function(k){$(k).hidden=(k!==v)})}
 
 /* ---------- Boot / auth ---------- */
+function introInit(){var el=$('intro');if(!el)return;try{if(sessionStorage.getItem('corlemps.intro')){el.remove();return}sessionStorage.setItem('corlemps.intro','1')}catch(e){}var t=setTimeout(close,4800);function close(){clearTimeout(t);el.remove()}$('introSkip').onclick=close}
+var addr='',idleT,IDLE_MS=10*60*1000;
+function roleLbl(){if(!me)return '';if(me.role==='owner')return 'Direktè Jeneral';return me.shift==='aswe'?'Vandè Aswè':me.shift==='maten'?'Vandè Maten':'Vandè'}
+function idleReset(){clearTimeout(idleT);if(!me)return;idleT=setTimeout(function(){if(me){toast('Dekonekte otomatikman (inaktivite)');sb.auth.signOut()}},IDLE_MS)}
+['click','keydown','touchstart','mousemove'].forEach(function(ev){document.addEventListener(ev,idleReset,{passive:true})});
+function loadAddr(){return sb.from('tenants').select('address').maybeSingle().then(function(r){addr=(r.data&&r.data.address)||''}).catch(function(){})}
 function boot(){
-  if(window.CORLEMPS_DEMO){sb=window.CORLEMPS_DEMO()}
-  else{
-    if(!CFG.url||!CFG.key||!window.supabase){view('setup');return}
-    sb=window.supabase.createClient(CFG.url,CFG.key);
-  }
+  introInit();
+  if(!CFG.url||!CFG.key||!window.supabase){view('setup');return}
+  sb=window.supabase.createClient(CFG.url,CFG.key);
   sb.auth.getSession().then(function(r){if(r.data&&r.data.session)enter();else view('login')}).catch(function(){view('login')});
   sb.auth.onAuthStateChange(function(ev){if(ev==='SIGNED_OUT'){me=null;view('login')}});
 }
@@ -626,12 +409,12 @@ function login(){
 function enter(){
   sb.auth.getUser().then(function(r){
     var u=r.data&&r.data.user;if(!u){view('login');return}
-    return sb.from('profiles').select('name,role').eq('id',u.id).maybeSingle().then(function(p){
+    return sb.from('profiles').select('name,role,shift').eq('id',u.id).maybeSingle().then(function(p){
       if(p.error||!p.data){$('lmsg').textContent='Kont sa a poko gen aksè. Kontakte Corlemps.';sb.auth.signOut();return}
       if(p.data.role==='superadmin'){$('lmsg').textContent='Kont sa a se administratè plat fòm nan. Itilize sit Kontwòl la (kontwol.html).';sb.auth.signOut();return}
       if(p.data.role!=='owner'&&p.data.role!=='cashier'){$('lmsg').textContent='Kont sa a poko asiyen a yon biznis. Kontakte Corlemps.';sb.auth.signOut();return}
-      me={id:u.id,name:p.data.name||u.email,role:p.data.role};
-      $('who').textContent=me.name+(me.role==='owner'?' · Pwopriyetè':' · Kasye');
+      me={id:u.id,name:p.data.name||u.email,role:p.data.role,shift:p.data.shift};idleReset();loadAddr();
+      $('who').textContent=me.name+' · '+roleLbl();
       $('btnDash').hidden=$('btnAdmin').hidden=$('btnAI').hidden=me.role!=='owner';
       try{st.held=JSON.parse(localStorage.getItem('corlemps.held.'+me.id)||'[]')}catch(e){st.held=[]}
       return checkSub().then(function(ok){if(!ok)return;view('appRoot');return refresh()});
@@ -660,8 +443,8 @@ function lock(){
 function banner(){
   $('bizH').textContent=bizName();document.title=bizName()+' – Kès Vant';
   var el=$('subBar'),d=sub.days_left,left=sub.grace_days+d;
-  if(me&&me.role==='owner')$('who').textContent=(sub.name?sub.name+' · ':'')+me.name+' · Pwopriyetè · abònman '+(sub.plan==='yearly'?'anyèl':'mansyèl')+' jiska '+fdate(sub.paid_until);
-  else if(me&&sub.name)$('who').textContent=sub.name+' · '+me.name+' · Kasye';
+  if(me&&me.role==='owner')$('who').textContent=(sub.name?sub.name+' · ':'')+me.name+' · '+roleLbl()+' · abònman '+(sub.plan==='yearly'?'anyèl':'mansyèl')+' jiska '+fdate(sub.paid_until);
+  else if(me&&sub.name)$('who').textContent=sub.name+' · '+me.name+' · '+roleLbl();
   if(d<0){el.className='subbar bad';el.textContent='⚠️ Abònman an ekspire. Kès la ap koupe nan '+left+' jou si ou pa renouvle.';el.hidden=false}
   else if(d<=5){el.className='subbar';el.textContent=d===0?'Abònman ou fini jodi a. Renouvle pou kès la pa koupe.':'Abònman ou fini nan '+d+' jou ('+fdate(sub.paid_until)+'). Renouvle pou kès la pa koupe.';el.hidden=false}
   else el.hidden=true;
@@ -756,7 +539,7 @@ var NM={bou:'Boutik',mar:'Market',fam:'Famasi',hop:'Lopital',hot:'Otèl',lek:'Le
 function receiptHTML(s){
   var d=new Date(s.created_at),date=d.toLocaleDateString('fr-FR')+' '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   var items=s.items||[],gain=0;items.forEach(function(it){gain+=(it.retail-it.unit)*it.qty});
-  var h='<h3>'+esc(bizName())+'</h3><div class="c">'+esc((s.sectors||[]).map(function(k){return NM[k]||k}).join(' + '))+'<br>Resi '+esc(s.no)+'<br>'+date+(s.cashier?'<br>Kasye: '+esc(s.cashier):'')+'</div><hr>';
+  var h='<h3>'+esc(bizName())+'</h3>'+(addr?'<div class="c">'+esc(addr)+'</div>':'')+'<div class="c">'+esc((s.sectors||[]).map(function(k){return NM[k]||k}).join(' + '))+'<br>Resi '+esc(s.no)+'<br>'+date+(s.cashier?'<br>Kasye: '+esc(s.cashier):'')+'</div><hr>';
   if(s.wholesale)h+='<div class="r"><span>Vant an gwo</span><span>'+esc(s.customer||'')+'</span></div><hr>';
   if(s.patient){var pl=partyLbl(s.sectors||[]);h+='<div class="r"><span>'+pl[2]+'</span><span>'+esc(s.patient)+(s.dossier?' ('+esc(pl[1])+' '+esc(s.dossier)+')':'')+'</span></div>'}
   if(s.doctor)h+='<div class="r"><span>Doktè/Ord.</span><span>'+esc(s.doctor)+'</span></div>';
@@ -774,7 +557,7 @@ function receiptHTML(s){
 }
 function showReceipt(s){curSale=s;$('rc').innerHTML=receiptHTML(s);$('ov').classList.add('on')}
 function waText(s){
-  var t=bizName()+'\nResi '+s.no+'\n';
+  var t=bizName()+(addr?'\n'+addr:'')+'\nResi '+s.no+'\n';
   (s.items||[]).forEach(function(it){t+=it.qty+' x '+it.name+' = '+g(it.unit*it.qty)+'\n'});
   return t+'TOTAL: '+g(s.total)+' ('+s.method+')\nMèsi!';
 }
@@ -850,7 +633,7 @@ function openDash(){
 
 /* ---------- Products admin (owner) ---------- */
 function openAdmin(){
-  var h='<h3>Paramèt</h3><label class="fld">Non biznis la (parèt anwo ak sou resi yo)<input id="bn" type="text" maxlength="60" value="'+esc(bizName())+'" autocomplete="off"></label><div class="hbtns one"><button type="button" class="btn sec" data-act="savebn">Sove non an</button></div><h4>Pwodwi</h4><div class="hbtns one"><button type="button" class="btn pay" data-act="newp">+ Nouvo pwodwi</button></div><div style="height:10px"></div>';
+  var h='<h3>Paramèt</h3><label class="fld">Non biznis la (parèt anwo ak sou resi yo)<input id="bn" type="text" maxlength="60" value="'+esc(bizName())+'" autocomplete="off"></label><div class="hbtns one"><button type="button" class="btn sec" data-act="savebn">Sove non an</button></div><label class="fld">Adrès biznis la (parèt sou resi yo)<input id="ba" type="text" maxlength="120" value="'+esc(addr)+'" autocomplete="off"></label><div class="hbtns one"><button type="button" class="btn sec" data-act="saveaddr">Sove adrès la</button></div><h4>Sovgad done</h4><div class="hbtns one"><button type="button" class="btn sec" data-act="backup">Telechaje kopi done (JSON)</button></div><h4>Pwodwi</h4><div class="hbtns one"><button type="button" class="btn pay" data-act="newp">+ Nouvo pwodwi</button></div><div style="height:10px"></div>';
   h+=PRODUCTS.length?PRODUCTS.map(function(p){
     return '<button type="button" class="hrow" data-edit="'+p.id+'"><span><b>'+esc(p.e)+' '+esc(p.n)+'</b><small>'+esc(NM[p.sec])+' · '+esc(p.c)+' · stok: '+(p.s==null?'ilimite':p.s)+(p.w!=null?' · gwo '+g(p.w)+' (≥'+p.wm+')':'')+'</small></span><b>'+g(p.p)+'</b></button>';
   }).join(''):'<p class="none">Pa gen pwodwi ankò.</p>';
@@ -909,6 +692,9 @@ function saveBizName(){
   });
 }
 
+function saveAddr(){var a=$('ba').value.trim();sb.rpc('set_my_tenant_address',{p_address:a}).then(function(r){if(r.error){toast(nice(r.error));return}addr=a;toast('Adrès la sove')})}
+function backup(){Promise.all([sb.from('sales').select('*').order('created_at',{ascending:false}).limit(10000),sb.from('products').select('*')]).then(function(r){var e=r[0].error||r[1].error;if(e){toast(nice(e));return}var b=new Blob([JSON.stringify({date:new Date().toISOString(),business:bizName(),products:r[1].data,sales:r[0].data},null,1)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='corlemps-sovgad-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},2000);toast('Kopi done a telechaje')})}
+
 /* ---------- Asistan IA (pwopriyetè) ---------- */
 var chat=[],aiBusy=false;
 var AI_Q=['Konbyen kòb mwen fè jodi a?','Ki pwodwi ki vann plis semèn sa a?','Ki pwodwi ki prèske fini nan stok?','Ki pwodwi ki pral ekspire?','Fè m yon rezime biznis la'];
@@ -947,7 +733,7 @@ document.addEventListener('click',function(e){
   else if(d.rec){showReceipt(histRows[+d.rec]);$('hov').classList.remove('on')}
   else if(d.edit){editForm(+d.edit)}
   else if(d.act==='newp')editForm(null);
-  else if(d.act==='savebn')saveBizName();
+  else if(d.act==='savebn')saveBizName();else if(d.act==='saveaddr')saveAddr();else if(d.act==='backup')backup();
   else if(d.act==='aisend')sendAI();
   else if(d.ai)askAI(d.ai);
   else if(d.act==='admin')openAdmin();
